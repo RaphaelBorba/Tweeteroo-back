@@ -16,15 +16,29 @@ app.post('/sign-up',(req,res)=>{
     const {username,avatar}= req.body
 
     if(!username || !avatar){
-        res.sendStatus(401);
+        res.status(401).send('Todos os campos são obrigatórios.');
         return
     }
-
     users.push(req.body)
-    console.log(users)
-    res.status(200).send(req.body)
+
+    res.status(201).send(req.body)
 })
 
+
+
+app.post('/tweets', (req, res)=>{
+
+    const {tweet} = req.body
+    const user = req.headers.user
+    const tweetFinal = {tweet, username:user}
+
+    if(!tweet){
+        res.status(401).send('Todos os campos são obrigatórios.');
+    }
+
+    tweets.unshift(tweetFinal)
+    res.status(201).send('Criado')
+})
 
 app.get('/tweets', (req, res)=>{
     
@@ -34,17 +48,15 @@ app.get('/tweets', (req, res)=>{
     res.status(200).send(tweetsWithAvatar)
 })
 
+app.get('/tweets/:username', (req, res)=>{
 
-app.post('/tweets', (req, res)=>{
+    const user = req.params.username 
+    
+    const arraysUserTweets = tweets.filter(e => e.username.toLowerCase() === user.toLowerCase())
 
-    const {tweet} = req.body
+    const arraysUserTweetsWithUrl = arraysUserTweets.map( e => createTweetWithAvatar(e,users))
 
-    if(!tweet){
-        res.sendStatus(400)
-    }
-    console.log(req.body)
-    tweets.unshift(req.body)
-    res.status(201).send('Criado')
+    res.status(200).send(arraysUserTweetsWithUrl)
 })
 
 
